@@ -63,14 +63,34 @@ class BuildCard(commands.Cog):
 
         cookies = json.loads(creds[2])
         print(cookies)
-
+        cookies["e_nap_token"] = await self.bot.zzzclient.get_e_nap_token(
+            cookies, creds[1]
+        )
         data = await self.bot.zzzclient.get_agent_detail(cookies, creds[1], 1431)
+        agent = data["data"]["list"][0]
 
         container = ui.Container()
+
+        main_text_raw = f"""# {agent["avatar"]["full_name_mi18n"]}\n"""
+
+        stats_text_raw = ""
+        for i, p in enumerate(agent["avatar"]["properties"]):
+            stats_text_raw += f"> -# {p['property_name']}: {p['final']}\n"
+
+        main_text_raw += stats_text_raw
+
+        main_text = ui.TextDisplay(main_text_raw)
+
+        icon_url = f"https://act-webstatic.hoyoverse.com/game_record/zzzv2/role_square_avatar/role_square_avatar_{agent['avatar']['id']}.png"
+        section1 = ui.Section(main_text, accessory=ui.Thumbnail(icon_url))
+        container.add_item(section1)
+
+        container.add_item(ui.Separator())
+
         media_gallery = ui.MediaGallery()
         files = []
 
-        discs: list[Disc] = data["data"]["list"][0]["equip"]
+        discs: list[Disc] = agent["equip"]
 
         for i, disc in enumerate(discs):
             img = await asyncio.to_thread(discimg.generate_disc_image, disc)
