@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from bot import Yuzubot
 
 
-class Build(commands.Cog):
+class BuildCard(commands.Cog):
     def __init__(self, bot: Yuzubot) -> None:
         self.bot: Yuzubot = bot
 
@@ -86,4 +86,4 @@ class Build(commands.Cog):
 
 
 async def setup(bot: Yuzubot):
-    await bot.add_cog(Build(bot))
+    await bot.add_cog(BuildCard(bot))

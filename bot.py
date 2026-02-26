@@ -10,7 +10,7 @@ from cogs.utils.hoyoclient import HoYoClient
 from cogs.utils.zzzclient import ZZZClient
 
 initial_extensions = (
-    "cogs.build",
+    "cogs.buildcard",
     "cogs.hoyolab",
 )
 
