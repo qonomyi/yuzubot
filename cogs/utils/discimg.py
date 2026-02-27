@@ -1,4 +1,6 @@
+import logging
 import os
+import time
 from io import BytesIO
 
 import requests
@@ -11,6 +13,8 @@ base_img_path = assets_path + "base.png"
 font_path = assets_path + "zzz.ttf"
 cache_path = assets_path + "cache/"
 fallback_img_path = assets_path + "fallback.png"
+
+log = logging.getLogger(__name__)
 
 
 def get_disc_icon(disc: Disc) -> str:
@@ -29,6 +33,8 @@ def get_disc_icon(disc: Disc) -> str:
 
 
 def generate_disc_image(disc: Disc) -> BytesIO:
+    start = time.time()
+
     base_img = Image.open(base_img_path)
     width, height = base_img.size
 
@@ -104,5 +110,8 @@ def generate_disc_image(disc: Disc) -> BytesIO:
     result = BytesIO()
     base_img.save(result, format="PNG")
     result.seek(0)
+
+    end = time.time()
+    log.info(f"Disc image generated in {end - start}s")
 
     return result
