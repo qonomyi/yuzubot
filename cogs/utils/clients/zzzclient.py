@@ -59,7 +59,6 @@ class ZZZClient(BaseClient):
         self, cookies: dict, zzz_uid: str, agent_id: int
     ) -> dict:
         data = {"avatar_list": [{"avatar_id": agent_id}]}
-        print(cookies)
 
         detail = await self._request(
             "POST",

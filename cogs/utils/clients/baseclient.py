@@ -1,4 +1,8 @@
+import logging
+
 import aiohttp
+
+log = logging.getLogger(__name__)
 
 
 class HoYoAPIError(Exception):
@@ -29,6 +33,8 @@ class BaseClient:
         resp = await self.session.request(
             method, url, cookies=cookies, json=data, headers=headers
         )
+
+        log.info(f"{method} to {url} returned {resp.status}")
 
         if return_raw_response:
             return resp

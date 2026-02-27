@@ -62,7 +62,6 @@ class BuildCard(commands.Cog):
             return
 
         cookies = json.loads(creds[2])
-        print(cookies)
         cookies["e_nap_token"] = await self.bot.zzzclient.get_e_nap_token(
             cookies, creds[1]
         )

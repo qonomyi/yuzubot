@@ -7,7 +7,8 @@ from typing import TYPE_CHECKING
 
 from discord.ext import commands
 from discord.ext.commands import Context
-from utils.clients.baseclient import HoYoAPIError
+
+from .utils.clients.baseclient import HoYoAPIError
 
 if TYPE_CHECKING:
     from bot import Yuzubot
