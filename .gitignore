@@ -10,6 +10,8 @@ wheels/
 .venv
 
 assets/discimg/cache/*
+scripts/cache/*
+jsparsetest
 data/*
 *testing.py
 resp.json

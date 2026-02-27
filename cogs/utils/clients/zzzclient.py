@@ -69,4 +69,4 @@ class ZZZClient(BaseClient):
         )
         detail = cast(dict, detail)
 
-        return detail
+        return detail["data"]["list"][0]

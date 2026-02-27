@@ -52,21 +52,21 @@ class BuildCard(commands.Cog):
         view.add_item(container)
         await ctx.reply(view=view)
 
-    @commands.command()
-    async def g(self, ctx: Context) -> None:
+    @commands.hybrid_command()
+    async def buildcard(self, ctx: Context, agent_id: int) -> None:
         creds_query = await self.bot.hoyolab_creds_db.execute(
             "SELECT * FROM creds WHERE user_id=?", (ctx.author.id,)
         )
         creds = await creds_query.fetchone()
         if creds is None:
+            await ctx.reply("no credential info found in db")
             return
 
         cookies = json.loads(creds[2])
         cookies["e_nap_token"] = await self.bot.zzzclient.get_e_nap_token(
             cookies, creds[1]
         )
-        data = await self.bot.zzzclient.get_agent_detail(cookies, creds[1], 1431)
-        agent = data["data"]["list"][0]
+        agent = await self.bot.zzzclient.get_agent_detail(cookies, creds[1], agent_id)
 
         container = ui.Container()
 
