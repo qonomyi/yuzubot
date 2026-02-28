@@ -98,6 +98,11 @@ def generate_disc_image(disc: Disc) -> BytesIO:
         draw.text((50, y), d[0], font=s_font, fill=s_fill, anchor="la")
         draw.text((width - 50, y), d[1], font=s_font, fill=s_fill, anchor="ra")
 
+    # Add mainstat hit count
+    if mainstat["valid"]:
+        hit_count += 1
+        max_hit_count += 1
+
     # Score
     disc_score = hit_count / max_hit_count * 100
     sc_font = ImageFont.truetype(font_path, 40)

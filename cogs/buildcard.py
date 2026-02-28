@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
+import time
 from typing import TYPE_CHECKING
 
 import discord
@@ -10,7 +12,9 @@ from discord.ext import commands
 from discord.ext.commands import Context
 
 from .utils import discimg
-from .utils.types import Disc
+from .utils.types import Disc, DiscProperty
+
+log = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from bot import Yuzubot
@@ -54,6 +58,8 @@ class BuildCard(commands.Cog):
 
     @commands.hybrid_command()
     async def buildcard(self, ctx: Context, agent_id: int) -> None:
+        await ctx.defer()
+        start_time = time.time()
         creds = await self.bot.hoyolab_creds.get_zzz(ctx.author.id)
 
         if creds is None:
@@ -64,9 +70,15 @@ class BuildCard(commands.Cog):
             creds["cookies"], creds["zzz_uid"], agent_id
         )
 
-        container = ui.Container()
+        icon_info = await self.bot.zzzclient.get_icon_info(creds["cookies"])
+        agent_color_raw = icon_info["avatar_icon"][str(agent_id)][
+            "vertical_painting_color"
+        ]
+        agent_color = discord.Colour.from_str(agent_color_raw)
 
-        rarity_emoji = str(
+        container = ui.Container(accent_color=agent_color)
+
+        rarity_icon_emoji = str(
             await self.bot.zzzemoji.get_rarity_emoji(
                 agent["avatar"]["rarity"], icon=True
             )
@@ -90,34 +102,119 @@ class BuildCard(commands.Cog):
             or ""
         )
 
-        main_text_raw = f"""# {rarity_emoji} {agent["avatar"]["full_name_mi18n"]} {element_emoji}{profession_emoji}\n"""
+        # Main Stats
+        main_text_raw = (
+            f"# {rarity_icon_emoji} {agent['avatar']['name_mi18n']} {element_emoji}{profession_emoji}\n"
+            + f"-# Lvl {agent['avatar']['level']} ･ Mindscape {agent['avatar']['rank']}\n"
+        )
 
-        stats_text_raw = ""
+        stats_text = ""
         for i, p in enumerate(agent["avatar"]["properties"]):
-            stats_text_raw += f"> -# {p['property_name']}: {p['final']}\n"
+            prop_name = p["property_name"]
+            prop_emoji = (
+                str(await self.bot.zzzemoji.get_prop_emoji(p["property_id"])) or ""
+            )
 
-        main_text_raw += stats_text_raw
+            stats_text += f"> {prop_emoji} {prop_name}: {p['final']}\n"
 
+        main_text_raw += stats_text
         main_text = ui.TextDisplay(main_text_raw)
 
         icon_url = f"https://act-webstatic.hoyoverse.com/game_record/zzzv2/role_square_avatar/role_square_avatar_{agent['avatar']['id']}.png"
-        section1 = ui.Section(main_text, accessory=ui.Thumbnail(icon_url))
-        container.add_item(section1)
+        stats_section = ui.Section(main_text, accessory=ui.Thumbnail(icon_url))
+        container.add_item(stats_section)
 
         container.add_item(ui.Separator())
 
-        media_gallery = ui.MediaGallery()
+        # W-Engine
+        we = agent.get("weapon")
+        if we is None:
+            pass
+        else:
+            we_rarity_emoji = str(
+                await self.bot.zzzemoji.get_rarity_emoji(we["rarity"], icon=False)
+            )
+
+            we_name = we["name"]
+            we_prop = we["properties"][0]
+            we_sub_prop = we["main_properties"][0]
+            we_text_raw = (
+                f"## {we_rarity_emoji} {we_name}\n"
+                + f"-# Lvl {we['level']} ･ Phase {we['star']}\n"
+                + f"> {we_prop['property_name']}: {we_prop['base']} ･ "
+                + f"{we_sub_prop['property_name']}: {we_sub_prop['base']}\n"
+            )
+
+            we_text = ui.TextDisplay(we_text_raw)
+            we_thumbnail = ui.Thumbnail(we["icon"])
+            we_section = ui.Section(we_text, accessory=we_thumbnail)
+
+            container.add_item(we_section)
+
+            container.add_item(ui.Separator())
+
+        # Skills
+        skills = agent["avatar"]["skills"]
+        skills_text_raw = ""
+        for skill in skills:
+            skill_emoji = str(
+                await self.bot.zzzemoji.get_skill_emoji(skill["skill_type"])
+            )
+            skills_text_raw += f"{skill_emoji} {skill['level']} | "
+
+        skills_text_raw = skills_text_raw[:-2]
+        skills_text = ui.TextDisplay(skills_text_raw)
+        container.add_item(skills_text)
+        container.add_item(ui.Separator())
+
+        # Disc
+        disc_media_gallery = ui.MediaGallery()
         files = []
 
         discs: list[Disc] = agent["equip"]
 
+        total_disc_score = 0.0
         for i, disc in enumerate(discs):
+            # Calc score
+            hit_count = 0
+            max_hit_count = 5
+
+            substats: list[DiscProperty] = disc["properties"]
+            for s in substats:
+                if s["valid"]:
+                    hit_count += s["level"]
+                    max_hit_count += 1
+
+            if disc["main_properties"][0]["valid"]:
+                hit_count += 1
+                max_hit_count += 1
+
+            total_disc_score += hit_count / max_hit_count * 100
+
+            # Disc image
             img = await asyncio.to_thread(discimg.generate_disc_image, disc)
             file = discord.File(img, f"disc{i}.png")
             files.append(file)
-            media_gallery.add_item(media=file)
+            disc_media_gallery.add_item(media=file)
 
-        container.add_item(media_gallery)
+        disc_score_button = ui.Button(label=f"{total_disc_score:.1f}", disabled=True)
+        disc_score_section = ui.Section(
+            ui.TextDisplay("**Total Disc Score**"), accessory=disc_score_button
+        )
+        container.add_item(disc_score_section)
+
+        container.add_item(disc_media_gallery)
+
+        container.add_item(ui.Separator())
+
+        end_time = time.time()
+        process_time = end_time - start_time
+
+        container.add_item(
+            ui.TextDisplay(
+                f"-# Generated by Yuzubot ･ Character Build by {ctx.author} ･ Took {process_time:.2f}s"
+            )
+        )
 
         view = ui.LayoutView()
         view.add_item(container)

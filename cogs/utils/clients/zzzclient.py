@@ -8,6 +8,7 @@ from .baseclient import BaseClient
 class ZZZClient(BaseClient):
     def __init__(self, session: aiohttp.ClientSession) -> None:
         self.session = session
+        self._icon_info_cache = {}
         super().__init__(self.session)
 
     async def get_game_record(self, cookies: dict):
@@ -70,3 +71,17 @@ class ZZZClient(BaseClient):
         detail = cast(dict, detail)
 
         return detail["data"]["list"][0]
+
+    async def get_icon_info(self, cookies: dict, use_cache: bool = True):
+        if self._icon_info_cache and not use_cache:
+            return self._icon_info_cache
+        else:
+            icon_info = await self._request(
+                "GET",
+                "https://sg-public-api.hoyolab.com/event/nap_cultivate_tool/user/icon_info",
+                cookies,
+            )
+            icon_info = cast(dict, icon_info)
+            self._icon_info_cache = icon_info
+
+        return icon_info["data"]

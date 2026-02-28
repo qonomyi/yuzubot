@@ -24,7 +24,7 @@ class ZZZEmojiHelper:
         self.zzz_data_path = "./data/zzz/"
 
     async def emoji_init(self) -> None:
-        filter_names = ("attribute", "profession", "prop", "rarity")
+        filter_names = ("attribute", "profession", "prop", "rarity", "skill")
 
         app_emoji_list = await self.bot.fetch_application_emojis()
         existing_emoji = [e.name for e in app_emoji_list]
@@ -96,6 +96,25 @@ class ZZZEmojiHelper:
 
     async def get_rarity_emoji(self, rarity: str, icon: bool = False) -> Emoji | None:
         emoji_name = f"rarity_{rarity.lower()}{('_icon' if icon else '')}"
+        emoji_id = self.emoji_map.get(emoji_name)
+        if emoji_id is None:
+            return None
+
+        return await self.bot.fetch_application_emoji(emoji_id)
+
+    async def get_prop_emoji(self, property_id: int) -> Emoji | None:
+        prop = self.data.get("properties", {}).get(str(property_id))
+        prop = prop.replace("-", "_")
+
+        emoji_name = f"prop_{prop}_icon"
+        emoji_id = self.emoji_map.get(emoji_name)
+        if emoji_id is None:
+            return None
+
+        return await self.bot.fetch_application_emoji(emoji_id)
+
+    async def get_skill_emoji(self, skill_type: int) -> Emoji | None:
+        emoji_name = f"skill_icon_{skill_type}"
         emoji_id = self.emoji_map.get(emoji_name)
         if emoji_id is None:
             return None
