@@ -54,19 +54,15 @@ class BuildCard(commands.Cog):
 
     @commands.hybrid_command()
     async def buildcard(self, ctx: Context, agent_id: int) -> None:
-        creds_query = await self.bot.hoyolab_creds_db.execute(
-            "SELECT * FROM creds WHERE user_id=?", (ctx.author.id,)
-        )
-        creds = await creds_query.fetchone()
+        creds = await self.bot.hoyolab_creds.get_zzz(ctx.author.id)
+
         if creds is None:
             await ctx.reply("no credential info found in db")
             return
 
-        cookies = json.loads(creds[2])
-        cookies["e_nap_token"] = await self.bot.zzzclient.get_e_nap_token(
-            cookies, creds[1]
+        agent = await self.bot.zzzclient.get_agent_detail(
+            creds["cookies"], creds["zzz_uid"], agent_id
         )
-        agent = await self.bot.zzzclient.get_agent_detail(cookies, creds[1], agent_id)
 
         container = ui.Container()
 
@@ -111,6 +107,17 @@ class BuildCard(commands.Cog):
         img_bytes = discimg.generate_disc_image(data["data"]["list"][0]["equip"][0])
         file = discord.File(img_bytes, "disc.png")
         await ctx.reply(file=file)
+
+    @commands.command()
+    async def aet(self, ctx: commands.Context) -> None:
+        with open(
+            "./jsparsetest/imgs/attribute-physical-icon.a657c07a.png",
+            "rb",
+        ) as f:
+            b = f.read()
+
+        emoji = await self.bot.create_application_emoji(name="test", image=b)
+        await ctx.reply(str(emoji))
 
 
 async def setup(bot: Yuzubot):

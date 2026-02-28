@@ -10,6 +10,7 @@ from discord.ext import commands
 
 import config
 from cogs.utils.clients import HoYoClient, ZZZClient
+from cogs.utils.hoyocreds import HoYoCredsDBHelper
 
 log = logging.getLogger(__name__)
 
@@ -56,14 +57,11 @@ class Yuzubot(commands.Bot):
         log.info(f"Logged as {self.user} ({self.user.id})")
 
     async def setup_hook(self) -> None:
-        self.hoyolab_creds_db = await aiosqlite.connect("./data/hoyolab_creds.db")
-        await self.hoyolab_creds_db.execute(
-            "CREATE TABLE IF NOT EXISTS creds("
-            + "user_id INTEGER PRIMARY KEY,"
-            + "zzz_uid INTEGER,"
-            + "cookies TEXT)"
-        )
-        await self.hoyolab_creds_db.commit()
+        self._hoyolab_creds_db = await aiosqlite.connect("./data/hoyolab_creds.db")
+        self._hoyolab_creds_db.row_factory = aiosqlite.Row
+
+        self.hoyolab_creds = HoYoCredsDBHelper(self, self._hoyolab_creds_db)
+        await self.hoyolab_creds.init_db()
 
         self.session = aiohttp.ClientSession(
             cookie_jar=aiohttp.cookiejar.DummyCookieJar()
@@ -81,7 +79,7 @@ class Yuzubot(commands.Bot):
 
     async def close(self) -> None:
         await self.session.close()
-        await self.hoyolab_creds_db.close()
+        await self._hoyolab_creds_db.close()
         await super().close()
 
 
