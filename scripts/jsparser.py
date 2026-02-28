@@ -51,6 +51,6 @@ def find_id_map_by_value(c, key: str, val: str):
     if not mapping_match:
         return mapping
 
-    p = re.findall(r'"?(\w+)"?:"?(\w+)"?', mapping_match.group())
+    p = re.findall(r'"?(\w+)"?:"?([\w\-]+)"?', mapping_match.group())
     mapping = {k: v for k, v in p}
     return mapping
