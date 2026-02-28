@@ -66,7 +66,31 @@ class BuildCard(commands.Cog):
 
         container = ui.Container()
 
-        main_text_raw = f"""# {agent["avatar"]["full_name_mi18n"]}\n"""
+        rarity_emoji = str(
+            await self.bot.zzzemoji.get_rarity_emoji(
+                agent["avatar"]["rarity"], icon=True
+            )
+        )
+
+        element_emoji = (
+            str(
+                await self.bot.zzzemoji.get_element_emoji(
+                    agent["avatar"]["element_type"], agent["avatar"]["sub_element_type"]
+                )
+            )
+            or ""
+        )
+
+        profession_emoji = (
+            str(
+                await self.bot.zzzemoji.get_profession_emoji(
+                    agent["avatar"]["avatar_profession"]
+                )
+            )
+            or ""
+        )
+
+        main_text_raw = f"""# {rarity_emoji} {agent["avatar"]["full_name_mi18n"]} {element_emoji}{profession_emoji}\n"""
 
         stats_text_raw = ""
         for i, p in enumerate(agent["avatar"]["properties"]):
@@ -117,6 +141,11 @@ class BuildCard(commands.Cog):
             b = f.read()
 
         emoji = await self.bot.create_application_emoji(name="test", image=b)
+        await ctx.reply(str(emoji))
+
+    @commands.command()
+    async def profemoji(self, ctx: Context, id: int) -> None:
+        emoji = await self.bot.zzzemoji.get_profession_emoji(id)
         await ctx.reply(str(emoji))
 
 
