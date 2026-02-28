@@ -11,6 +11,7 @@ from discord.ext import commands
 import config
 from cogs.utils.clients import HoYoClient, ZZZClient
 from cogs.utils.hoyocreds import HoYoCredsDBHelper
+from cogs.utils.zzzemoji import ZZZEmojiHelper
 
 log = logging.getLogger(__name__)
 
@@ -68,6 +69,10 @@ class Yuzubot(commands.Bot):
         )
         self.hoyoclient = HoYoClient(self.session)
         self.zzzclient = ZZZClient(self.session)
+
+        self.zzzemoji = ZZZEmojiHelper(self)
+        await self.zzzemoji.emoji_init()
+        await self.zzzemoji.data_init()
 
         for extension in initial_extensions:
             try:
