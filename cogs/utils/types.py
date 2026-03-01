@@ -1,6 +1,12 @@
 from typing import TypedDict
 
 
+class HoYoUserData(TypedDict):
+    user_id: int
+    zzz_uid: int | str
+    cookies: str
+
+
 class DiscProperty(TypedDict):
     property_name: str
     property_id: int

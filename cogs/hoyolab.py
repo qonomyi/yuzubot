@@ -10,6 +10,8 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import Context
 
+from cogs.utils.types import HoYoUserData
+
 from .utils.clients.baseclient import HoYoAPIError
 
 if TYPE_CHECKING:
@@ -74,11 +76,13 @@ class HoyoLab(commands.Cog):
 
         cookies["e_nap_token"] = e_nap_token
 
-        await self.bot.hoyolab_creds_db.execute(
-            "INSERT INTO creds VALUES (?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET zzz_uid = excluded.zzz_uid, cookies = excluded.cookies;",
-            (ctx.author.id, zzz_uid, json.dumps(cookies)),
-        )
-        await self.bot.hoyolab_creds_db.commit()
+        user_data: HoYoUserData = {
+            "user_id": ctx.author.id,
+            "zzz_uid": zzz_uid,
+            "cookies": json.dumps(cookies),
+        }
+
+        await self.bot.hoyolab_creds.register(user_data)
 
         content += "\n\nRegister Successful!"
         await msg.edit(content=content)

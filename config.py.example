@@ -1,0 +1,7 @@
+# Discord bot token
+token = "your.token.here"
+
+# Base64 encoded 32 bytes value
+# Generate with: Fernet.generate_key()
+encrypt_key = b"-nFSeN6bB-KaEL0W1MzC6ps="
+hash_salt = "random_string_for_salt"

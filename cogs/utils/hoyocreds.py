@@ -6,6 +6,9 @@ from typing import TYPE_CHECKING
 
 import aiosqlite
 
+from cogs.utils import cipher
+from cogs.utils.types import HoYoUserData
+
 if TYPE_CHECKING:
     from bot import Yuzubot
 
@@ -20,9 +23,8 @@ class HoYoCredsDBHelper:
     async def init_db(self) -> None:
         query = """
         CREATE TABLE IF NOT EXISTS creds ( 
-             user_id INTEGER PRIMARY KEY,
-             zzz_uid INTEGER,
-             cookies TEXT
+             user_id TEXT PRIMARY KEY,
+             user_data TEXT
         )
         """
 
@@ -31,17 +33,41 @@ class HoYoCredsDBHelper:
 
         log.info("HoYoCredsDB Initialized")
 
+    async def register(self, user_data: HoYoUserData) -> bool:
+        query = """
+        INSERT INTO creds VALUES 
+            (?, ?)
+        ON CONFLICT(user_id) DO UPDATE SET
+            user_data = excluded.user_data;
+        """
+        hashed_id = cipher.hash_user_id(user_data["user_id"])
+        encrypted_data = cipher.encrypt_user_data(user_data)
+
+        await self.db.execute(
+            query,
+            (hashed_id, encrypted_data),
+        )
+        await self.db.commit()
+
+        return True
+
     async def get(self, user_id: int) -> dict | None:
-        cur = await self.db.execute("SELECT * FROM creds WHERE user_id=?", (user_id,))
+        hashed_user_id = cipher.hash_user_id(user_id)
+        cur = await self.db.execute(
+            "SELECT * FROM creds WHERE user_id=?", (hashed_user_id,)
+        )
         row = await cur.fetchone()
 
         if row is None:
             return None
 
+        user_data_raw = row["user_data"]
+        user_data: HoYoUserData = cipher.decrypt_user_data(user_data_raw)
+
         return {
-            "user_id": row["user_id"],
-            "zzz_uid": row["zzz_uid"],
-            "cookies": json.loads(row["cookies"]),
+            "user_id": user_data["user_id"],
+            "zzz_uid": user_data["zzz_uid"],
+            "cookies": json.loads(user_data["cookies"]),
         }
 
     async def get_zzz(self, user_id: int) -> dict | None:
