@@ -51,7 +51,16 @@ def setup_logging():
 class Yuzubot(commands.Bot):
     def __init__(self):
         intents = discord.Intents.all()
-        super().__init__("y:", intents=intents)
+        super().__init__(
+            "y:",
+            intents=intents,
+            allowed_contexts=discord.app_commands.AppCommandContext(
+                guild=True, dm_channel=True, private_channel=True
+            ),
+            allowed_installs=discord.app_commands.AppInstallationType(
+                guild=True, user=True
+            ),
+        )
 
     async def on_ready(self):
         assert self.user

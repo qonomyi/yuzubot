@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 import re
 import time
@@ -25,38 +24,6 @@ class BuildCard(commands.Cog):
     def __init__(self, bot: Yuzubot) -> None:
         self.bot: Yuzubot = bot
         self.owned_cache: dict[str, dict] = {}
-
-    @commands.command()
-    async def b(self, ctx: Context) -> None:
-        with open("./resp.json", "r", encoding="utf-8") as f:
-            data = json.loads(f.read())
-
-        container = ui.Container()
-
-        discs = data["data"]["list"][0]["equip"]
-
-        t = ""
-        for disc in discs:
-            # Name - Level
-            t = f"{disc['name']} - Lv{disc['level']}\n"
-
-            # Main Stats
-            m = disc["main_properties"][0]
-            t += f"-# **{m['property_name']}: {m['base']}**\n"
-
-            # Sub Stats
-            for p in disc["properties"]:
-                t += f"-# {p['property_name']}{f' (+{p["add"]})' if int(p['add']) else ''}: {p['base']}\n"
-
-            section = ui.Section(
-                ui.TextDisplay(t), accessory=ui.Thumbnail(disc["icon"])
-            )
-            container.add_item(section)
-            container.add_item(ui.Separator())
-
-        view = ui.LayoutView()
-        view.add_item(container)
-        await ctx.reply(view=view)
 
     def none_empty_discs(self, discs: list[Disc | None]) -> list[Disc | None]:
         result: list[Disc | None] = [None] * 6
@@ -104,8 +71,6 @@ class BuildCard(commands.Cog):
 
     @commands.hybrid_command()
     @app_commands.autocomplete(agent_id=agent_id_autocomplete)
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def buildcard(self, ctx: Context, agent_id: int) -> None:
         await ctx.defer()
         start_time = time.time()
@@ -287,30 +252,6 @@ class BuildCard(commands.Cog):
         view.add_item(container)
 
         await ctx.reply(view=view, files=files)
-
-    @commands.command()
-    async def testimg(self, ctx: Context) -> None:
-        with open("./resp.json", "r", encoding="utf-8") as f:
-            data = json.loads(f.read())
-        img_bytes = discimg.generate_disc_image(data["data"]["list"][0]["equip"][0])
-        file = discord.File(img_bytes, "disc.png")
-        await ctx.reply(file=file)
-
-    @commands.command()
-    async def aet(self, ctx: commands.Context) -> None:
-        with open(
-            "./jsparsetest/imgs/attribute-physical-icon.a657c07a.png",
-            "rb",
-        ) as f:
-            b = f.read()
-
-        emoji = await self.bot.create_application_emoji(name="test", image=b)
-        await ctx.reply(str(emoji))
-
-    @commands.command()
-    async def profemoji(self, ctx: Context, id: int) -> None:
-        emoji = await self.bot.zzzemoji.get_profession_emoji(id)
-        await ctx.reply(str(emoji))
 
 
 async def setup(bot: Yuzubot):
