@@ -11,9 +11,9 @@ wheels/
 
 assets/discimg/cache/*
 scripts/cache/*
-jsparsetest
 data/*
+logs/
+jsparsetest
 *testing.py
 resp.json
 config.py
-*.log

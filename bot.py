@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
 import aiohttp
 import aiosqlite
@@ -31,8 +32,11 @@ def setup_logging():
         "[{asctime}] [{levelname:<8}] {name}: {message}", dt_fmt, style="{"
     )
 
+    logs_path = Path("./logs")
+    logs_path.mkdir(exist_ok=True)
+
     file_handler = RotatingFileHandler(
-        filename="yuzubot.log",
+        filename="./logs/yuzubot.log",
         encoding="utf-8",
         maxBytes=32 * 1024 * 1024,  # 32MB
         backupCount=5,
