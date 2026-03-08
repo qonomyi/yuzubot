@@ -117,7 +117,7 @@ class Yuzubot(commands.Bot):
             await ctx.reply("No credential found", ephemeral=True)
             return
 
-        # return await super().on_command_error(ctx, error)
+        return await super().on_command_error(ctx, error)
 
 
 if __name__ == "__main__":

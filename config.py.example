@@ -1,6 +1,8 @@
 # Discord bot token
 token = "your.token.here"
 
+# Do not disable(false) in prod env
+encrypt_db = True
 # Base64 encoded 32 bytes value
 # Generate with: Fernet.generate_key()
 encrypt_key = b"generated-key"

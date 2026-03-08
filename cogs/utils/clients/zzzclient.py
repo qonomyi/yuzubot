@@ -43,7 +43,11 @@ class ZZZClient(BaseClient):
         async with cast(aiohttp.ClientResponse, resp) as resp:
             resp_cookies = resp.cookies
 
-        return resp_cookies["e_nap_token"].value or ""
+        e_nap_token = resp_cookies.get("e_nap_token")
+        if e_nap_token is None:
+            return ""
+
+        return e_nap_token.value or ""
 
     async def get_owned_agent_list(self, cookies: dict, zzz_uid: str) -> list:
         data = await self._request(

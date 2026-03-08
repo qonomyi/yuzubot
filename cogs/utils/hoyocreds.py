@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import aiosqlite
 
+import config
 from cogs.utils import cipher
 from cogs.utils.types import HoYoCreds, HoYoCredsRaw
 
@@ -24,6 +25,9 @@ class HoYoCredsDBHelper:
     def __init__(self, bot: Yuzubot, db_conn: aiosqlite.Connection) -> None:
         self.bot = bot
         self.db = db_conn
+
+        if not config.encrypt_db:
+            log.warn("Credential DB encryption is disabled!!")
 
     async def init_db(self) -> None:
         query = """
@@ -45,12 +49,16 @@ class HoYoCredsDBHelper:
         ON CONFLICT(user_id) DO UPDATE SET
             user_data = excluded.user_data;
         """
-        hashed_id = cipher.hash_user_id(user_data["user_id"])
-        encrypted_data = cipher.encrypt_user_data(user_data)
+        if config.encrypt_db:
+            user_id = cipher.hash_user_id(user_data["user_id"])
+            data = cipher.encrypt_user_data(user_data)
+        else:
+            user_id = user_data["user_id"]
+            data = json.dumps(user_data)
 
         await self.db.execute(
             query,
-            (hashed_id, encrypted_data),
+            (user_id, data),
         )
         await self.db.commit()
 
@@ -67,7 +75,11 @@ class HoYoCredsDBHelper:
             raise HoYoCredsNotFoundError(user_id)
 
         user_data_raw = row["user_data"]
-        user_data: HoYoCredsRaw = cipher.decrypt_user_data(user_data_raw)
+
+        if config.encrypt_db:
+            user_data: HoYoCredsRaw = cipher.decrypt_user_data(user_data_raw)
+        else:
+            user_data = json.loads(user_data_raw)
 
         return {
             "user_id": user_data["user_id"],

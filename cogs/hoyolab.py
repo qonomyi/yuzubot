@@ -39,12 +39,22 @@ class HoyoLab(commands.Cog):
 
         c = SimpleCookie()
         c.load(user_cookies)
+        # cookies = {key: morsel.value for key, morsel in c.items()}
 
         cookies = {}
-        target = ["cookie_token_v2", "account_mid_v2", "account_id_v2"]
+        target = [
+            "cookie_token_v2",
+            "account_mid_v2",
+            "account_id_v2",
+            # "ltmid_v2",
+            # "ltoken_v2",
+            # "ltuid_v2",
+        ]
         for t in target:
             if v := c.get(t):
                 cookies[t] = v.value
+
+        log.info(cookies)
 
         if 3 > len(cookies):
             await msg.edit(content=content + "\nWrong cookies")
@@ -78,6 +88,9 @@ class HoyoLab(commands.Cog):
 
         # Fetch e_nap_token
         e_nap_token = await self.bot.zzzclient.get_e_nap_token(cookies, zzz_uid)
+        if not e_nap_token:
+            await msg.edit(content=content + "\nfailed to fetch e_nap_token")
+            return
 
         content += f" ok\ne_nap_token preview: `{e_nap_token[:4]}***{e_nap_token[-4:]}`"
 
