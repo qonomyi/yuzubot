@@ -118,10 +118,13 @@ def download_images(cd) -> None:
     image_names = {i: re.sub(r"\.[a-f0-9]+(?=\.)", "", i) for i in images_set}
 
     for orig, name in image_names.items():
+        if os.path.exists("./data/zzz/images/" + name):
+            print("exists:", name)
+            continue
         img = requests.get(images_base + orig).content
         with open("./data/zzz/images/" + name, "wb") as f:
             f.write(img)
-        print("downloaded:", name)
+            print("downloaded:", name)
 
 
 #
@@ -137,7 +140,9 @@ if __name__ == "__main__":
     cache_list = os.listdir("./scripts/cache")
 
     elements, sub_elements = generate_elements(cache_list)
+
     print()
+
     with open("./data/zzz/elements.json", "w", encoding="utf-8") as f:
         json.dump(elements, f, indent=2, ensure_ascii=False)
         print("elements generated:", elements)
@@ -161,10 +166,13 @@ if __name__ == "__main__":
         json.dump(skill_types, f, indent=2, ensure_ascii=False)
         print("skill_types generated:", skill_types)
 
-    print("\nDownload images in 3s")
-    time.sleep(3)
+    # print("\nDownload images in 3s")
+    # time.sleep(3)
 
     download_images(cache_list)
 
+    with open("./data/zzz/last_updated.txt", "w", encoding="utf-8") as f:
+        f.write(str(int(time.time())))  # Ew.
+
     print()
-    print("Done")
+    print("Done (●'◡'●)")
