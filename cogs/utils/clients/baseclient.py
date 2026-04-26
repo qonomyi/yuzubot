@@ -7,7 +7,7 @@ class HoYoAPIError(Exception):
     def __init__(self, retcode, message):
         self.retcode = retcode
         self.message = message
-        super().__init__(f"HoYoLab API Error {retcode}: {message}")
+        super().__init__(f"HoYoLAB API Error {retcode}: {message}")
 
 
 class BaseClient:
