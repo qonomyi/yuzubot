@@ -1,5 +1,6 @@
 services:
   yuzubot:
+    user: 1000:1000
     container_name: yuzubot
     build: .
     volumes:
