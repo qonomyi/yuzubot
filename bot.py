@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+import time
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -23,6 +25,7 @@ initial_extensions = (
     "cogs.admin",
     "cogs.buildcard",
     "cogs.hoyolab",
+    "cogs.meta",
 )
 
 
@@ -71,6 +74,9 @@ class Yuzubot(commands.Bot):
                 guild=True, user=True
             ),
         )
+
+        self.start_time = int(time.time())
+        self.assets_last_updated = int(os.path.getmtime("./data/zzz/images/"))
 
     async def on_ready(self):
         assert self.user
