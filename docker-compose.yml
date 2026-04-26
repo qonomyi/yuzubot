@@ -7,3 +7,4 @@ services:
       - ./config.py:/app/config.py:ro
       - ./data/:/app/data/
       - ./scripts/cache/:/app/scripts/cache
+      - ./logs/:/app/logs/
