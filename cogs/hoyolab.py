@@ -9,9 +9,11 @@ from typing import TYPE_CHECKING
 import discord
 from discord.ext import commands
 from discord.ext.commands import Context
+from discord.ext import tasks
 
 from bot import groups
 from cogs.utils.types import HoYoCredsRaw
+
 
 from .utils.clients.baseclient import HoYoAPIError
 
@@ -24,6 +26,8 @@ log = logging.getLogger(__name__)
 class HoyoLab(commands.Cog):
     def __init__(self, bot: Yuzubot) -> None:
         self.bot: Yuzubot = bot
+
+        self.check_creds.start()
 
     @groups.in_group("hoyolab")
     @commands.hybrid_group("hoyolab")
@@ -141,6 +145,17 @@ class HoyoLab(commands.Cog):
     async def whoami(self, ctx: Context) -> None:
         creds = await self.bot.hoyolab_creds.get(ctx.author.id)
         await ctx.reply(creds["zzz_uid"], ephemeral=True)
+
+    @tasks.loop(hours=12)
+    async def check_creds(self):
+        creds = await self.bot.hoyolab_creds.get_zzz(1161665033063895191)
+        if creds["cookies"].get("e_nap_token"):
+            msg = "ok"
+        else:
+            msg = "failed"
+
+        channel = await self.bot.fetch_channel(1476369450000187463)
+        await channel.send(msg)  # type: ignore
 
 
 async def setup(bot: Yuzubot):
