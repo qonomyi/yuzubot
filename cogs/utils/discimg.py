@@ -60,15 +60,27 @@ def generate_disc_image(disc: Disc) -> BytesIO:
     # Mainstats
     mainstat = disc["main_properties"][0]
 
-    m_font = ImageFont.truetype(font_path, 32)
+    is_mainstat_name_long = False
+    if len(mainstat["property_name"]) > 8:
+        m_font = ImageFont.truetype(font_path, 24)
+        is_mainstat_name_long = True
+    else:
+        m_font = ImageFont.truetype(font_path, 32)
+
     if mainstat["valid"]:
         m_fill = "#F0F0F0"
     else:
         m_fill = "#808080"
 
     m_text = mainstat["property_name"]
-    m_pos = (50, 118)
+    if is_mainstat_name_long:
+        m_pos = (50, 118 + 4)
+    else:
+        m_pos = (50, 118)
+
     draw.text(m_pos, m_text, font=m_font, fill=m_fill, anchor="la")
+
+    m_font = ImageFont.truetype(font_path, 32)
 
     m_v_text = mainstat["base"]
     m_v_pos = (width - 50, 118)
