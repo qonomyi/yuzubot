@@ -12,7 +12,7 @@ wheels/
 assets/discimg/cache/*
 scripts/cache/*
 data/*
-logs/
+logs/*
 jsparsetest
 *testing.py
 resp.json
