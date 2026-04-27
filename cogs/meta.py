@@ -22,7 +22,7 @@ class MetaCog(commands.Cog):
         embed = discord.Embed(
             title="// Yuzubot Information",
             description=(
-                "Yuzubot is a helper bot for Zenless Zone Zero / HoYoLAB"
+                "Yuzubot is a helper bot for Zenless Zone Zero / HoYoLAB\n"
                 "･ [Source Code](https://github.com/qonomyi/yuzubot)"
             ),
             color=0xB92733,
