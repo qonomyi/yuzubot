@@ -9,10 +9,9 @@ wheels/
 # Virtual environments
 .venv
 
-assets/discimg/cache/*
-scripts/cache/*
 data/*
 logs/*
+cache/*
 jsparsetest
 *testing.py
 resp.json
