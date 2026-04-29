@@ -12,7 +12,7 @@ from .types import Disc, DiscProperty
 assets_path = "./assets/discimg/"
 base_img_path = assets_path + "base.png"
 font_path = assets_path + "zzz.ttf"
-cache_path = assets_path + "cache/"
+cache_path = "./cache/discimg/"
 fallback_img_path = assets_path + "fallback.png"
 
 log = logging.getLogger(__name__)

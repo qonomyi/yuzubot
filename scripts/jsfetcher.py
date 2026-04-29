@@ -22,7 +22,7 @@ def fetch_all_js():
     for i in it:
         print("fetching:", i.group())
         data = requests.get(base + i.group()).text
-        with open("./scripts/cache/" + i.group(), "w", encoding="utf-8") as f:
+        with open("./cache/scripts/" + i.group(), "w", encoding="utf-8") as f:
             f.write(data)
 
         r = None
@@ -40,11 +40,11 @@ def fetch_all_js():
 
     for id in js_ids:
         name = f"pc_{id}.js"
-        if os.path.exists("./scripts/cache/" + name):
+        if os.path.exists("./cache/scripts/" + name):
             print("exists:", name)
             continue
 
         data = requests.get(base + name).text
         print("fetching:", name)
-        with open("./scripts/cache/" + name, "w", encoding="utf-8") as f:
+        with open("./cache/scripts/" + name, "w", encoding="utf-8") as f:
             f.write(data)

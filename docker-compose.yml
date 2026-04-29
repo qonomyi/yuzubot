@@ -6,6 +6,5 @@ services:
     volumes:
       - ./config.py:/app/config.py:ro
       - ./data/:/app/data/
-      - ./scripts/cache/:/app/scripts/cache
-      - ./assets/discimg/cache/:/app/assets/discimg/cache
+      - ./cache/:/app/cache/
       - ./logs/:/app/logs/

@@ -14,7 +14,7 @@ def generate_elements(cd: list[str]) -> tuple[dict, dict]:
     sub_elements = {}
 
     for p in cd:
-        with open("./scripts/cache/" + p, "r", encoding="utf-8") as f:
+        with open("./cache/scripts/" + p, "r", encoding="utf-8") as f:
             content = f.read()
 
         section = jsparser.find_section_by_variable_val(content, "physical")
@@ -45,7 +45,7 @@ def generate_elements(cd: list[str]) -> tuple[dict, dict]:
 def generate_professions(cd: list[str]) -> dict:
     professions = {}
     for p in cd:
-        with open("./scripts/cache/" + p, "r", encoding="utf-8") as f:
+        with open("./cache/scripts/" + p, "r", encoding="utf-8") as f:
             content = f.read()
 
         section = jsparser.find_section_by_variable_val(content, "attack")
@@ -70,7 +70,7 @@ def generate_professions(cd: list[str]) -> dict:
 def generate_properties(cd: list[str]) -> dict:
     properties = {}
     for p in cd:
-        with open("./scripts/cache/" + p, "r", encoding="utf-8") as f:
+        with open("./cache/scripts/" + p, "r", encoding="utf-8") as f:
             content = f.read()
 
         properties_map = jsparser.find_id_map_by_value(content, "1", "hp")
@@ -86,7 +86,7 @@ def generate_properties(cd: list[str]) -> dict:
 def generate_skill_types(cd: list[str]) -> dict:
     skill_types = {}
     for p in cd:
-        with open("./scripts/cache/" + p, "r", encoding="utf-8") as f:
+        with open("./cache/scripts/" + p, "r", encoding="utf-8") as f:
             content = f.read()
 
         skill_types_map = jsparser.find_id_map_by_value(content, "0", "normal")
@@ -104,7 +104,7 @@ def download_images(cd) -> None:
     images = []
 
     for p in cd:
-        with open("./scripts/cache/" + p, "r", encoding="utf-8") as f:
+        with open("./cache/scripts/" + p, "r", encoding="utf-8") as f:
             content = f.read()
 
         result_iter = re.finditer(r"images\/[\w, -]+.\w+?\.png", content)
@@ -132,12 +132,12 @@ if __name__ == "__main__":
     zzz_data_path = Path("./data/zzz/images")
     zzz_data_path.mkdir(parents=True, exist_ok=True)
 
-    js_cache_path = Path("./scripts/cache")
+    js_cache_path = Path("./cache/scripts/")
     js_cache_path.mkdir(parents=True, exist_ok=True)
 
     jsfetcher.fetch_all_js()
 
-    cache_list = os.listdir("./scripts/cache")
+    cache_list = os.listdir("./cache/scripts/")
 
     elements, sub_elements = generate_elements(cache_list)
 
