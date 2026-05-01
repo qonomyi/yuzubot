@@ -2,6 +2,7 @@ services:
   yuzubot:
     user: 1000:1000
     container_name: yuzubot
+    restart: unless-stopped
     build: .
     volumes:
       - ./config.py:/app/config.py:ro
