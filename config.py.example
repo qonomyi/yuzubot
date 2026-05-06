@@ -7,3 +7,6 @@ encrypt_db = True
 # Generate with: Fernet.generate_key()
 encrypt_key = b"generated-key"
 hash_salt = "random_string_for_salt"
+
+# Channel ID for Refresh Creds Notification
+refresh_creds_channel = 0

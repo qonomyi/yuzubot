@@ -7,13 +7,12 @@ from io import BytesIO
 from typing import TYPE_CHECKING
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.ext.commands import Context
-from discord.ext import tasks
 
+import config
 from bot import groups
 from cogs.utils.types import HoYoCredsRaw
-
 
 from .utils.clients.baseclient import HoYoAPIError
 
@@ -27,7 +26,7 @@ class HoyoLab(commands.Cog):
     def __init__(self, bot: Yuzubot) -> None:
         self.bot: Yuzubot = bot
 
-        self.check_creds.start()
+        self.refresh_creds.start()
 
     @groups.in_group("hoyolab")
     @commands.hybrid_group("hoyolab")
@@ -146,16 +145,20 @@ class HoyoLab(commands.Cog):
         creds = await self.bot.hoyolab_creds.get(ctx.author.id)
         await ctx.reply(creds["zzz_uid"], ephemeral=True)
 
-    @tasks.loop(hours=12)
-    async def check_creds(self):
-        creds = await self.bot.hoyolab_creds.get_zzz(1161665033063895191)
-        if creds["cookies"].get("e_nap_token"):
-            msg = "ok"
-        else:
-            msg = "failed"
+    @tasks.loop(hours=1)
+    async def refresh_creds(self):
+        try:
+            refreshed, expired = await self.bot.hoyolab_creds.refresh_e_nap_token()
+            if refreshed == 0 and expired == 0:
+                return
 
-        channel = await self.bot.fetch_channel(1476369450000187463)
-        await channel.send(msg)  # type: ignore
+            channel = await self.bot.fetch_channel(config.refresh_creds_channel)
+            if isinstance(channel, discord.abc.Messageable):
+                await channel.send(
+                    f"{refreshed} account(s) refreshed, {expired} account(s) expired"
+                )
+        except Exception as e:
+            log.error(f"Error in refresh_creds task: {e}")
 
 
 async def setup(bot: Yuzubot):
