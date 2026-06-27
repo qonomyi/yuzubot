@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import json
 import logging
 from typing import TYPE_CHECKING
 
+import aiohttp
 import discord
 from discord.ext import commands
 from discord.ext.commands import Context
+
+from .utils.types import Disc, DiscProperty, HoYoCreds
 
 if TYPE_CHECKING:
     from bot import Yuzubot
@@ -50,6 +54,23 @@ class MetaCog(commands.Cog):
         )
 
         await ctx.reply(embed=embed)
+
+    @commands.hybrid_command(description="Make custom request in hoyoclient")
+    async def hoyoclient_request(
+        self,
+        ctx: Context,
+        method: str,
+        url: str,
+        data: str,
+    ) -> None:
+        creds: HoYoCreds = await self.bot.hoyolab_creds.get(ctx.author.id)
+
+        data_json = json.loads(data)
+        resp: aiohttp.ClientResponse = await self.bot.hoyoclient._request(
+            method, url, creds["cookies"], data_json, return_raw_response=True
+        )
+        t = await resp.text()
+        await ctx.reply(f"-# <{url}>\n```json\n{t}\n```", ephemeral=True)
 
 
 async def setup(bot: Yuzubot):
