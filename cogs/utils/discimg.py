@@ -50,7 +50,7 @@ def generate_disc_image(disc: Disc) -> BytesIO:
     t_pos = (51.5, 50)
     t_fill = "#F0F0F0"
 
-    draw.text(t_pos, t_text, font=t_font, collor=t_fill)
+    draw.text(t_pos, t_text, font=t_font, color=t_fill)
 
     # Disc Image
     disc_img = Image.open(get_disc_icon(disc))
