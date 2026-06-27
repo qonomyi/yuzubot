@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Literal, cast
 
 import aiohttp
 
@@ -89,3 +89,19 @@ class ZZZClient(BaseClient):
             self._icon_info_cache = icon_info
 
         return icon_info["data"]
+
+    async def _get_mem_detail(
+        self, cookies: dict, zzz_uid: str, schedule_type: Literal[1, 2]
+    ) -> dict:
+
+        url = f"https://sg-act-public-api.hoyolab.com/event/game_record_zzz/api/zzz/mem_detail?uid={zzz_uid}&region=prod_gf_jp&schedule_type={schedule_type}"
+        detail = await self._request("GET", url, cookies=cookies)
+        detail = cast(dict, detail)
+
+        return detail
+
+    async def get_da_detail(self, cookies: dict, zzz_uid: str) -> dict:
+        return await self._get_mem_detail(cookies, zzz_uid, 1)
+
+    async def get_shiyu_detail(self, cookies: dict, zzz_uid: str) -> dict:
+        return await self._get_mem_detail(cookies, zzz_uid, 2)

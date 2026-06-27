@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import logging
 import os
 import time
-import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
@@ -26,6 +26,7 @@ initial_extensions = (
     "cogs.buildcard",
     "cogs.hoyolab",
     "cogs.meta",
+    "cogs.widget",
 )
 
 

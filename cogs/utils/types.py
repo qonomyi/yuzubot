@@ -3,12 +3,14 @@ from typing import TypedDict
 
 class HoYoCredsRaw(TypedDict):
     user_id: int
+    hl_uid: str
     zzz_uid: str
     cookies: str
 
 
 class HoYoCreds(TypedDict):
     user_id: int
+    hl_uid: str
     zzz_uid: str
     cookies: dict
 

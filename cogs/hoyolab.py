@@ -101,6 +101,7 @@ class HoyoLab(commands.Cog):
 
         user_data_raw: HoYoCredsRaw = {
             "user_id": ctx.author.id,
+            "hl_uid": cookies["account_id_v2"],
             "zzz_uid": zzz_uid,
             "cookies": json.dumps(cookies),
         }

@@ -62,7 +62,7 @@ class HoYoCredsDBHelper:
             user_id = user_data["user_id"]
             data = json.dumps(user_data)
 
-        expires_at = int(time.time()) + (3600 * 47)
+        expires_at = int(time.time()) + (3600 * 12)
         await self.db.execute(
             query,
             (user_id, data, expires_at, False),
@@ -90,6 +90,7 @@ class HoYoCredsDBHelper:
 
         return {
             "user_id": user_data["user_id"],
+            "hl_uid": user_data["hl_uid"],
             "zzz_uid": user_data["zzz_uid"],
             "cookies": json.loads(user_data["cookies"]),
         }
